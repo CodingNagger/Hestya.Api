@@ -1,0 +1,28 @@
+{
+  "name": "hestya-api",
+  "version": "1.0.0",
+  "description": "API for Hestya",
+  "main": "main.js",
+  "scripts": {
+    "start": "node main.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/IamNguele/Hestya.Api.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/IamNguele/Hestya.Api/issues"
+  },
+  "homepage": "https://github.com/IamNguele/Hestya.Api#readme",
+  "dependencies": {
+    "body-parser": "^1.18.1",
+    "express": "^4.15.4",
+    "jsonwebtoken": "^8.0.1",
+    "passport": "^0.4.0",
+    "passport-jwt": "^3.0.0",
+    "throng": "^4.0.0"
+  }
+}
