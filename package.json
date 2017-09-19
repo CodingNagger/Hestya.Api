@@ -2,10 +2,11 @@
   "name": "hestya-api",
   "version": "1.0.0",
   "description": "API for Hestya",
-  "main": "main.js",
+  "main": "src/main.js",
   "scripts": {
-    "start": "node main.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node src/main.js",
+    "test": "nyc --reporter=html --reporter=text mocha --recursive tests",
+    "cover": "nyc report --reporter=text-lcov | coveralls"
   },
   "repository": {
     "type": "git",
@@ -18,11 +19,23 @@
   },
   "homepage": "https://github.com/IamNguele/Hestya.Api#readme",
   "dependencies": {
+    "bcrypt": "^1.0.3",
     "body-parser": "^1.18.1",
     "express": "^4.15.4",
     "jsonwebtoken": "^8.0.1",
+    "mongodb": "^2.2.31",
     "passport": "^0.4.0",
     "passport-jwt": "^3.0.0",
-    "throng": "^4.0.0"
+    "promise": "^8.0.1",
+    "throng": "^4.0.0",
+    "validator": "^8.2.0"
+  },
+  "devDependencies": {
+    "coveralls": "^2.13.1",
+    "istanbul": "^0.4.5",
+    "mocha": "^3.5.3",
+    "nyc": "^11.2.1",
+    "sinon": "^3.2.1",
+    "supertest": "^3.0.0"
   }
 }
