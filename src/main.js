@@ -17,15 +17,22 @@ app.use(passport.initialize());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-/*
 app.use((req, res, next) => {
-  if (req.header('X-Hestya-Api-Key') !== ApiProtectionKey) { // for api protection 
+  if (process.env.DEV !== 1 // check if debugging
+    && process.env.PRODUCTION !== 1 // check if production
+    && (
+      req.header('X-Forwarded-For') &&
+      !process.env.ALLOWED_IPS.includes(req.header('X-Forwarded-For')))) { // for api protection 
     res.sendStatus(403);
     return;
   }
+
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  
   next();
 });
-*/
+
 
 app.use('/account', account.api);
 

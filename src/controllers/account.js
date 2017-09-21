@@ -38,7 +38,7 @@ var strategy = new JwtStrategy(jwtOptions, function (jwtPayload, next) {
 var account = express();
 
 account.post("/login", (req, res) => {
-    if (!req.body.email || !req.body.password) {
+    if (!req.body.username || !req.body.password) {
         res.status(401).json({ message: "invalid request" });
         return;
     }
@@ -47,7 +47,7 @@ account.post("/login", (req, res) => {
         .then((db) => {
             db.collection(UsersCollectionName)
                 .findOne(
-                { email: req.body.email },
+                { email: req.body.username },
                 { fields: { _id: 1, encryptedPassword: 1 } })
                 .then((user) => {
                     console.log('login '+user);

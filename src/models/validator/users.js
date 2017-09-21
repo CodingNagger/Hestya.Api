@@ -9,6 +9,10 @@ var UsersModelValidator = class UsersModelValidator {
      */
     static validateUser(user) {
         return new Promise((resolve, reject) => {
+            if (!this.validateDisplayName(user.displayName)) {
+                reject('invalid name');
+            }
+
             if (!this.validateEmail(user.email)) {
                 reject('invalid email');
             }
@@ -28,6 +32,7 @@ var UsersModelValidator = class UsersModelValidator {
             bcrypt.hash(user.password, 1)
                 .then((hash) => {
                     resolve({
+                        displayName: user.displayName,
                         email: user.email,
                         encryptedPassword: hash,
                         dateOfBirth: user.dateOfBirth,
@@ -38,6 +43,15 @@ var UsersModelValidator = class UsersModelValidator {
                     reject('password could not be encrypted');
                 });
         });
+    }
+
+    /**
+     * 
+     * @param {string} displayName 
+     */
+    static validateDisplayName(displayName) {
+        return !!displayName && 
+            displayName.match(/^[\w]([\w][\.\-\ _]?)+$/i)
     }
 
     /**

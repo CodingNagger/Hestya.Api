@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node src/main.js",
     "test": "nyc --reporter=html --reporter=text mocha --recursive tests",
-    "cover": "nyc report --reporter=text-lcov | coveralls"
+    "cover": "nyc report --reporter=text-lcov | coveralls",
+    "debug": "set DEV=1 && node --inspect src/main.js"
   },
   "repository": {
     "type": "git",

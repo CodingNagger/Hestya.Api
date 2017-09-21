@@ -11,7 +11,8 @@ describe('models/validator/users', () => {
             email: 'test@hestya.io',
             password: 'totototo',
             country: 'GB',
-            dateOfBirth: '1991-02-20'
+            dateOfBirth: '1991-02-20',
+            displayName: 'Jean-Dominique Nguele 92'
         };
 
         UserModelValidator.validateUser(user)
@@ -33,7 +34,8 @@ describe('models/validator/users', () => {
             email: 'test@hestyaio',
             password: 'totototo',
             country: 'GB',
-            dateOfBirth: '1991-02-20'
+            dateOfBirth: '1991-02-20',
+            displayName: 'Jean-Dominique Nguele 92'
         };
 
         UserModelValidator.validateUser(user)
@@ -50,7 +52,8 @@ describe('models/validator/users', () => {
             email: 'test@hestya.io',
             password: 'totototo',
             country: 'GB1',
-            dateOfBirth: '1991-02-20'
+            dateOfBirth: '1991-02-20',
+            displayName: 'Jean-Dominique Nguele 92'
         };
 
         UserModelValidator.validateUser(user)
@@ -67,7 +70,8 @@ describe('models/validator/users', () => {
             email: 'test@hestya.io',
             password: 'totototo',
             country: 'GB',
-            dateOfBirth: '2600-02-20'
+            dateOfBirth: '2600-02-20',
+            displayName: 'Jean-Dominique Nguele 92'
         };
 
         UserModelValidator.validateUser(user)
@@ -84,7 +88,26 @@ describe('models/validator/users', () => {
             email: 'test@hestya.io',
             password: '',
             country: 'GB',
-            dateOfBirth: '1991-02-20'
+            dateOfBirth: '1991-02-20',
+            displayName: 'Jean-Dominique Nguele 92'
+        };
+
+        UserModelValidator.validateUser(user)
+            .then((validUser) => {
+                assert(false, 'should have failed');
+            })
+            .catch((err) => {
+                done();
+            });
+    });
+
+    it('Rejects invalid display name', (done) => {
+        var user = {
+            email: 'test@hestya.io',
+            password: '',
+            country: 'GB',
+            dateOfBirth: '1991-02-20',
+            displayName: 'Jean-Dominique Nguele 8==D'
         };
 
         UserModelValidator.validateUser(user)
