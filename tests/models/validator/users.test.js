@@ -12,7 +12,10 @@ describe('models/validator/users', () => {
             password: 'totototo',
             country: 'GB',
             dateOfBirth: '1991-02-20',
-            displayName: 'Jean-Dominique Nguele 92'
+            displayName: 'JeanDominiqueNguele92',
+            firstName: 'Jean-Dominique',
+            lastName: 'Nguele',
+            postcode: 'N1 1BA'
         };
 
         UserModelValidator.validateUser(user)
@@ -35,7 +38,9 @@ describe('models/validator/users', () => {
             password: 'totototo',
             country: 'GB',
             dateOfBirth: '1991-02-20',
-            displayName: 'Jean-Dominique Nguele 92'
+            displayName: 'JeanDominiqueNguele92',
+            firstName: 'Jean-Dominique',
+            lastName: 'Nguele'
         };
 
         UserModelValidator.validateUser(user)
@@ -53,7 +58,9 @@ describe('models/validator/users', () => {
             password: 'totototo',
             country: 'GB1',
             dateOfBirth: '1991-02-20',
-            displayName: 'Jean-Dominique Nguele 92'
+            displayName: 'JeanDominiqueNguele92',
+            firstName: 'Jean-Dominique',
+            lastName: 'Nguele'
         };
 
         UserModelValidator.validateUser(user)
@@ -71,7 +78,9 @@ describe('models/validator/users', () => {
             password: 'totototo',
             country: 'GB',
             dateOfBirth: '2600-02-20',
-            displayName: 'Jean-Dominique Nguele 92'
+            displayName: 'JeanDominiqueNguele92',
+            firstName: 'Jean-Dominique',
+            lastName: 'Nguele'
         };
 
         UserModelValidator.validateUser(user)
@@ -89,7 +98,9 @@ describe('models/validator/users', () => {
             password: '',
             country: 'GB',
             dateOfBirth: '1991-02-20',
-            displayName: 'Jean-Dominique Nguele 92'
+            displayName: 'JeanDominiqueNguele92',
+            firstName: 'Jean-Dominique',
+            lastName: 'Nguele'
         };
 
         UserModelValidator.validateUser(user)

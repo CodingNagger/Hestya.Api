@@ -9,8 +9,16 @@ var UsersModelValidator = class UsersModelValidator {
      */
     static validateUser(user) {
         return new Promise((resolve, reject) => {
+            if (!this.validateName(user.firstName)) {
+                reject('invalid first name');
+            }
+
+            if (!this.validateName(user.lastName)) {
+                reject('invalid last name');
+            }
+
             if (!this.validateDisplayName(user.displayName)) {
-                reject('invalid name');
+                reject('invalid display name');
             }
 
             if (!this.validateEmail(user.email)) {
@@ -25,18 +33,27 @@ var UsersModelValidator = class UsersModelValidator {
                 reject('invalid country');
             }
 
+            if (!this.validatePostcode(user.postcode, user.country)) {
+                reject('invalid postcode');
+            }
+
             if (!this.validateDateOfBirth(user.dateOfBirth)) {
                 reject('invalid date of birth');
             }
+
+            // add postcode validation
 
             bcrypt.hash(user.password, 1)
                 .then((hash) => {
                     resolve({
                         displayName: user.displayName,
+                        lastName: user.lastName,
+                        firstName: user.firstName,
                         email: user.email,
                         encryptedPassword: hash,
                         dateOfBirth: user.dateOfBirth,
-                        country: user.country
+                        country: user.country,
+                        postCode: user.postCode
                     });
                 })
                 .catch(() => {
@@ -47,11 +64,20 @@ var UsersModelValidator = class UsersModelValidator {
 
     /**
      * 
+     * @param {string} name 
+     */
+    static validateName(name) {
+        return !!name && 
+            name.match(/^[\w]([\w][\.\-\ ]?)+$/i)
+    }
+
+    /**
+     * 
      * @param {string} displayName 
      */
     static validateDisplayName(displayName) {
         return !!displayName && 
-            displayName.match(/^[\w]([\w][\.\-\ _]?)+$/i)
+            displayName.match(/^[a-zA-Z0-9_]+$/i)
     }
 
     /**
@@ -69,6 +95,10 @@ var UsersModelValidator = class UsersModelValidator {
     static validateCountry(country) {
         return validator.isLength(country, { min: 2, max: 2 })
             && validator.isAlpha(country);
+    }
+
+    static validatePostcode(postcode, country) {
+        return validator.isPostalCode(postcode, country);
     }
 
     /**
