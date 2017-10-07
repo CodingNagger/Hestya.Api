@@ -2,6 +2,8 @@ var throng = require('throng');
 var express = require('express');
 var bodyParser = require('body-parser');
 
+var jwtOptions = require('./configuration/jwtOptions');
+
 // consts
 var ApiProtectionKey = 'H34cUle$';
 
@@ -10,6 +12,17 @@ var account = require('./controllers/account');
 
 var passport = require("passport");
 passport.use(account.strategy);
+
+passport.serializeUser(function(user, done) {
+  delete user._id;
+  delete user.encryptedPassword;
+
+  done(null, user);
+});
+
+passport.deserializeUser(function(user, done) {
+  done(null, user);
+});
 
 var app = express();
 app.use(passport.initialize());
@@ -41,12 +54,12 @@ app.use('/account', account.api);
 // auth => https://jonathanmh.com/express-passport-json-web-token-jwt-authentication-beginners/
 
 // Use Bearer : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MzE2LCJpYXQiOjE1MDU0MDc1Njh9.uIDStet-eAuroCdiAGFHPlm6NdPZSgqLJh5TWWb5MpM
-app.get("/secret", passport.authenticate('jwt', { session: false }), (req, res) => {
-  res.json("Success! You can not see this without a token. Authenticated user id is:" + req.user.id);
+app.get("/me", passport.authenticate('jwt', { session: true }), (req, res) => {
+  res.json(req.user);
 });
 
 function start() {
-  var port = process.env.PORT || 8080;
+  var port = process.env.PORT || 8888;
 
   var server = app.listen(port, () => {
 

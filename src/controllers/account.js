@@ -12,13 +12,16 @@ var UserModelValidator = require('../models/validator/users');
 var JwtStrategy = require("passport-jwt").Strategy;
 var jwtOptions = require('../configuration/jwtOptions');
 
+var AuthenticationUtilities = require('../utility/authentication');
+
 var strategy = new JwtStrategy(jwtOptions, function (jwtPayload, next) {
     console.log('payload received', jwtPayload);
 
-    MongoClient.connect(MongoDbUrl)
+    if (PayloadUtilities.validatePayload(jwtPayload)) {
+        MongoClient.connect(MongoDbUrl)
         .then((db) => {
             db.collection(UsersCollectionName).findOne({ _id: new ObjectId(jwtPayload.id) })
-                .then((user) => {
+                .then((user) => {  
                     console.log('user found '+user);
                     db.close();
                     next(null, user);
@@ -33,6 +36,10 @@ var strategy = new JwtStrategy(jwtOptions, function (jwtPayload, next) {
             console.log('cannot connect to mongodb ' + err);
             next(null, false);
         });
+    }
+    else {
+        next(null, false);
+    }
 });
 
 var account = express();
@@ -50,12 +57,20 @@ account.post("/login", (req, res) => {
                 { email: req.body.username },
                 { fields: { _id: 1, encryptedPassword: 1 } })
                 .then((user) => {
-                    console.log('login '+user);
+                    
                     db.close();
+
+                    if (!user) {
+                        console.log('cannot find user ' + req.body.username);
+                        res.status(401).json({ message: "no such user found" });
+                        return;
+                    }
+
+                    console.log('login '+ JSON.stringify(user));
                     UserModelValidator.checkUserPassword(req.body.password, user)
                         .then(() => {
                             console.log('id '+user._id);
-                            var payload = { id: user._id };
+                            var payload = PayloadUtilities.generatePayload({id: user._id});
                             var token = jwt.sign(payload, jwtOptions.secretOrKey);
                             res.json({ token: token });
                         })
@@ -91,7 +106,7 @@ account.post("/register", (req, res) => {
                             .then((user) => {
                                 db.collection(UsersCollectionName).insertOne(user)
                                     .then((result) => {
-                                        var payload = { id: result.insertedId };
+                                        var payload = PayloadUtilities.generatePayload({ id: result.insertedId });
                                         var token = jwt.sign(payload, jwtOptions.secretOrKey);
                                         res.status(201).json({ token: token });
                                     })
