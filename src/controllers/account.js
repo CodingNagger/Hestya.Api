@@ -17,7 +17,7 @@ var AuthenticationUtilities = require('../utility/authentication');
 var strategy = new JwtStrategy(jwtOptions, function (jwtPayload, next) {
     console.log('payload received', jwtPayload);
 
-    if (PayloadUtilities.validatePayload(jwtPayload)) {
+    if (AuthenticationUtilities.validatePayload(jwtPayload)) {
         MongoClient.connect(MongoDbUrl)
         .then((db) => {
             db.collection(UsersCollectionName).findOne({ _id: new ObjectId(jwtPayload.id) })
@@ -70,7 +70,7 @@ account.post("/login", (req, res) => {
                     UserModelValidator.checkUserPassword(req.body.password, user)
                         .then(() => {
                             console.log('id '+user._id);
-                            var payload = PayloadUtilities.generatePayload({id: user._id});
+                            var payload = AuthenticationUtilities.generatePayload({id: user._id});
                             var token = jwt.sign(payload, jwtOptions.secretOrKey);
                             res.json({ token: token });
                         })
@@ -106,7 +106,8 @@ account.post("/register", (req, res) => {
                             .then((user) => {
                                 db.collection(UsersCollectionName).insertOne(user)
                                     .then((result) => {
-                                        var payload = PayloadUtilities.generatePayload({ id: result.insertedId });
+                                        console.log('Registration succeed')
+                                        var payload = AuthenticationUtilities.generatePayload({ id: result.insertedId });
                                         var token = jwt.sign(payload, jwtOptions.secretOrKey);
                                         res.status(201).json({ token: token });
                                     })
@@ -116,6 +117,7 @@ account.post("/register", (req, res) => {
                                     });
                             })
                             .catch((errorMessage) => {
+                                console.log('Register failed: ' + errorMessage);
                                 res.status(400).json({ message: errorMessage });
                             });
                     }

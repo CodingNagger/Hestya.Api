@@ -31,6 +31,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use((req, res, next) => {
+  console.log('something something')
   if (process.env.DEV !== 1 // check if debugging
     && process.env.PRODUCTION !== 1 // check if production
     && (
@@ -41,7 +42,7 @@ app.use((req, res, next) => {
   }
 
   res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
   
   next();
 });
@@ -55,6 +56,7 @@ app.use('/account', account.api);
 
 // Use Bearer : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MzE2LCJpYXQiOjE1MDU0MDc1Njh9.uIDStet-eAuroCdiAGFHPlm6NdPZSgqLJh5TWWb5MpM
 app.get("/me", passport.authenticate('jwt', { session: true }), (req, res) => {
+  console.log('getting user details: '+JSON.stringify(req.user));
   res.json(req.user);
 });
 

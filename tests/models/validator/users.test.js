@@ -6,6 +6,24 @@ var assert = require('assert')
 var sinon = require('sinon')
 
 describe('models/validator/users', () => {
+    it('Validates that actual sample data', (done) => {
+        var user = JSON.parse(
+            '{"email":"nguelejd@live.fr","country":"GB","password":"totototo","firstName":"Jean-Dominique","lastName":"Nguele","displayName":"JD","dateOfBirth":"20/02/1991","postcode":"se17 2pa"}');
+
+        UserModelValidator.validateUser(user)
+        .then((validUser) => {
+            assert(user.email === validUser.email, 'wrong email');
+            assert(user.dateOfBirth === validUser.dateOfBirth, 'wrong dateOfBirth');
+            assert(user.country === validUser.country, 'wrong country');
+            done();
+        })
+        .catch((err) => {
+            console.log(err);
+            assert(false, err);
+            done();
+        });
+    });
+
     it('Validates happy path user', (done) => {
         var user = {
             email: 'test@hestya.io',
