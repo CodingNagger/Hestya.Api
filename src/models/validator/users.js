@@ -17,10 +17,6 @@ var UsersModelValidator = class UsersModelValidator {
                 reject('invalid last name');
             }
 
-            if (!this.validateDisplayName(user.displayName)) {
-                reject('invalid display name');
-            }
-
             if (!this.validateEmail(user.email)) {
                 reject('invalid email');
             }
@@ -46,7 +42,6 @@ var UsersModelValidator = class UsersModelValidator {
             bcrypt.hash(user.password, 1)
                 .then((hash) => {
                     resolve({
-                        displayName: user.displayName,
                         lastName: user.lastName,
                         firstName: user.firstName,
                         email: user.email,

@@ -8,7 +8,7 @@ var sinon = require('sinon')
 describe('models/validator/users', () => {
     it('Validates that actual sample data', (done) => {
         var user = JSON.parse(
-            '{"email":"nguelejd@live.fr","country":"GB","password":"totototo","firstName":"Jean-Dominique","lastName":"Nguele","displayName":"JD","dateOfBirth":"20/02/1991","postcode":"se17 2pa"}');
+            '{"email":"nguelejd@live.fr","country":"GB","password":"totototo","firstName":"Jean-Dominique","lastName":"Nguele","displayName":"JD","dateOfBirth":"1991-02-20","postcode":"se17 2pa"}');
 
         UserModelValidator.validateUser(user)
         .then((validUser) => {
