@@ -2,16 +2,39 @@ var throng = require('throng');
 var express = require('express');
 var bodyParser = require('body-parser');
 
+process.on('unhandledRejection', (reason, promise) => { 
+  console.log(JSON.stringify(promise));
+  throw reason;
+ });
+
 var jwtOptions = require('./configuration/jwtOptions');
+
+var AuthenticationUtilities = require('./utility/authentication');
+
+var serviceOptions = {
+  mongo: require('./configuration/mongoConnector'),
+  authUtils: AuthenticationUtilities,
+  jwt: jwtOptions,
+}
+
+var ProfilesService = require('./services/account/profile')(serviceOptions);
+
+var JwtStrategy = require("passport-jwt").Strategy;
+
+var strategy = new JwtStrategy(jwtOptions, function (jwtPayload, next) {
+    console.log('payload received', jwtPayload);
+
+    ProfilesService.validateUserFromPayload(jwtPayload)
+        .then((user) => next(null, user))
+        .catch(() => next(null, false));
+});
 
 // consts
 var ApiProtectionKey = 'H34cUle$';
 
-// controllers
-var account = require('./controllers/account');
-
+// passport
 var passport = require("passport");
-passport.use(account.strategy);
+passport.use(strategy);
 
 passport.serializeUser(function(user, done) {
   delete user._id;
@@ -24,6 +47,17 @@ passport.deserializeUser(function(user, done) {
   done(null, user);
 });
 
+var apiOptions = {
+  service: serviceOptions,
+  authenticator: passport.authenticate('jwt', { session: true }),
+};
+
+
+// controllers
+var account = require('./controllers/account')(apiOptions);
+var profile = require('./controllers/profile')(apiOptions);
+
+// api
 var app = express();
 app.use(passport.initialize());
 
@@ -47,18 +81,8 @@ app.use((req, res, next) => {
   next();
 });
 
-
-app.use('/account', account.api);
-
-// custom headers client call: https://github.com/request/request#custom-http-headers
-
-// auth => https://jonathanmh.com/express-passport-json-web-token-jwt-authentication-beginners/
-
-// Use Bearer : Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MzE2LCJpYXQiOjE1MDU0MDc1Njh9.uIDStet-eAuroCdiAGFHPlm6NdPZSgqLJh5TWWb5MpM
-app.get("/me", passport.authenticate('jwt', { session: true }), (req, res) => {
-  console.log('getting user details: '+JSON.stringify(req.user));
-  res.json(req.user);
-});
+app.use('/account', account);
+app.use('/me', profile);
 
 function start() {
   var port = process.env.PORT || 8888;

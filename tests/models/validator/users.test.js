@@ -30,7 +30,6 @@ describe('models/validator/users', () => {
             password: 'totototo',
             country: 'GB',
             dateOfBirth: '1991-02-20',
-            displayName: 'JeanDominiqueNguele92',
             firstName: 'Jean-Dominique',
             lastName: 'Nguele',
             postcode: 'N1 1BA'
@@ -56,7 +55,6 @@ describe('models/validator/users', () => {
             password: 'totototo',
             country: 'GB',
             dateOfBirth: '1991-02-20',
-            displayName: 'JeanDominiqueNguele92',
             firstName: 'Jean-Dominique',
             lastName: 'Nguele'
         };
@@ -76,7 +74,6 @@ describe('models/validator/users', () => {
             password: 'totototo',
             country: 'GB1',
             dateOfBirth: '1991-02-20',
-            displayName: 'JeanDominiqueNguele92',
             firstName: 'Jean-Dominique',
             lastName: 'Nguele'
         };
@@ -96,7 +93,6 @@ describe('models/validator/users', () => {
             password: 'totototo',
             country: 'GB',
             dateOfBirth: '2600-02-20',
-            displayName: 'JeanDominiqueNguele92',
             firstName: 'Jean-Dominique',
             lastName: 'Nguele'
         };
@@ -116,27 +112,8 @@ describe('models/validator/users', () => {
             password: '',
             country: 'GB',
             dateOfBirth: '1991-02-20',
-            displayName: 'JeanDominiqueNguele92',
             firstName: 'Jean-Dominique',
             lastName: 'Nguele'
-        };
-
-        UserModelValidator.validateUser(user)
-            .then((validUser) => {
-                assert(false, 'should have failed');
-            })
-            .catch((err) => {
-                done();
-            });
-    });
-
-    it('Rejects invalid display name', (done) => {
-        var user = {
-            email: 'test@hestya.io',
-            password: '',
-            country: 'GB',
-            dateOfBirth: '1991-02-20',
-            displayName: 'Jean-Dominique Nguele 8==D'
         };
 
         UserModelValidator.validateUser(user)
