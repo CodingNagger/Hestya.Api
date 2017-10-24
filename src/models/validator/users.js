@@ -68,15 +68,6 @@ var UsersModelValidator = class UsersModelValidator {
 
     /**
      * 
-     * @param {string} displayName 
-     */
-    static validateDisplayName(displayName) {
-        return !!displayName && 
-            displayName.match(/^[a-zA-Z0-9_]+$/i)
-    }
-
-    /**
-     * 
      * @param {string} email 
      */
     static validateEmail(email) {
@@ -88,10 +79,14 @@ var UsersModelValidator = class UsersModelValidator {
      * @param {string} country 
      */
     static validateCountry(country) {
-        return validator.isLength(country, { min: 2, max: 2 })
-            && validator.isAlpha(country);
+        return validator.isISO31661Alpha2(country);
     }
 
+    /**
+     * 
+     * @param {string} postcode 
+     * @param {string} country 
+     */
     static validatePostcode(postcode, country) {
         return validator.isPostalCode(postcode, country);
     }

@@ -1,4 +1,3 @@
-var ProfileCollectionName = process.env.MONGODB_USERS || 'users';
 var UserModelValidator = require('../../models/validator/users');
 var jwt = require('jsonwebtoken');
 
@@ -16,7 +15,7 @@ module.exports = (options) => {
                 if (options.authUtils.validatePayload(payload)) {
                     options.mongo.connect()
                         .then((db) => {
-                            db.collection(ProfileCollectionName)
+                            db.collection(options.mongo.collectionNames.profile)
                                 .findOne({ _id: new options.mongo.ObjectID(payload.id) })
                                 .then((user) => {
                                     console.log('user found ' + user);
@@ -48,7 +47,7 @@ module.exports = (options) => {
                 options.mongo.connect()
                     .then((db) => {
                         console.log('got the db');
-                        db.collection(ProfileCollectionName)
+                        db.collection(options.mongo.collectionNames.profile)
                             .findOne(
                             { email: username },
                             { fields: { _id: 1, encryptedPassword: 1 } })
@@ -82,7 +81,7 @@ module.exports = (options) => {
                             });
                     })
                     .catch((err) => {
-                        console.log('no db ' + err)
+                        console.log('no db ' + JSON.stringify(err))
                         reject({ code: 500, message: "cannot connect to db" });
                     })
             });
@@ -92,7 +91,7 @@ module.exports = (options) => {
             return new Promise((resolve, reject) => {
                 options.mongo.connect()
                     .then((db) => {
-                        db.collection(ProfileCollectionName).findOne({ email: email })
+                        db.collection(options.mongo.collectionNames.profile).findOne({ email: email })
                             .then((user) => {
                                 resolve(!!user);
                             })
@@ -110,7 +109,7 @@ module.exports = (options) => {
             return new Promise((resolve, reject) => {
                 options.mongo.connect()
                 .then((db) => {
-                    db.collection(ProfileCollectionName).insertOne(user)
+                    db.collection(options.mongo.collectionNames.profile).insertOne(user)
                         .then((result) => {
                             resolve(result.insertedId);
                         })

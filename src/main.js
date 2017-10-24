@@ -65,7 +65,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use((req, res, next) => {
-  console.log('something something')
   if (process.env.DEV !== 1 // check if debugging
     && process.env.PRODUCTION !== 1 // check if production
     && (

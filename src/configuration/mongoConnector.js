@@ -13,6 +13,12 @@ class MongoConnector {
     get ObjectID() {
         return mongodb.ObjectID;
     }
+
+    get collectionNames() {
+        return {
+            profile: process.env.MONGODB_USERS || 'users',
+        }
+    }
 }
 
 module.exports = new MongoConnector();
