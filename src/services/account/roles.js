@@ -2,10 +2,6 @@ var UserModelValidator = require('../../models/validator/users');
 var authorizedRoles = ['parent', 'nanny', 'aupair', 'babysitter'];
 
 module.exports = (options) => {
-    var ProfilesService = !!options.services && !!options.services.ProfilesService ?
-        options.services.ProfilesService :
-        require('./profile')(options);
-
     // user service to get user
     return class RolesService {
         static hasRole(user, role) {
@@ -24,6 +20,7 @@ module.exports = (options) => {
                             db.collection(options.mongo.collectionNames.profile)
                                 .findOne({ email: user.email })
                                 .then((loadedUser) => {
+                                    console.log('found user');
                                     if (!loadedUser.roles) {
                                         loadedUser.roles = {};
                                     }
@@ -32,6 +29,7 @@ module.exports = (options) => {
 
                                     db.collection(options.mongo.collectionNames.profile).save(loadedUser)
                                         .then((result) => {
+                                            console.log('save user')
                                             resolve();
                                         })
                                 })

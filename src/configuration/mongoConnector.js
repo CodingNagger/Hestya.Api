@@ -16,7 +16,8 @@ class MongoConnector {
 
     get collectionNames() {
         return {
-            profile: process.env.MONGODB_USERS || 'users',
+            profile: process.env.MONGODB_PROFILE || 'users',
+            refreshToken: process.env.MONGODB_REFRESH_TOKEN || 'refreshTokens',
         }
     }
 }

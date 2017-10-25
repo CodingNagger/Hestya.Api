@@ -2,6 +2,8 @@ var UserModelValidator = require('../../models/validator/users');
 var jwt = require('jsonwebtoken');
 
 module.exports = (options) => {
+    var OauthService = require('./oauth')(options);
+
     // user service to get user
     return class ProfilesService {
 
@@ -64,10 +66,10 @@ module.exports = (options) => {
                                 console.log('login ' + JSON.stringify(user));
                                 UserModelValidator.checkUserPassword(password, user)
                                     .then(() => {
-                                        console.log('id ' + user._id);
-                                        var payload = options.authUtils.generatePayload({ id: user._id });
-                                        var token = jwt.sign(payload, options.jwt.secretOrKey);
-                                        resolve(token);
+                                        console.log('password ok');
+                                        OauthService.generateCredentials(user._id)
+                                            .then((credentials) => resolve(credentials))
+                                            .catch((err) => {message: "failed to generate credentials"})
                                     })
                                     .catch((err) => {
                                         console.log(err);
@@ -108,15 +110,15 @@ module.exports = (options) => {
         static saveNewUser(user) {
             return new Promise((resolve, reject) => {
                 options.mongo.connect()
-                .then((db) => {
-                    db.collection(options.mongo.collectionNames.profile).insertOne(user)
-                        .then((result) => {
-                            resolve(result.insertedId);
-                        })
-                })
-                .catch((err) => {
-                    reject(err);
-                });
+                    .then((db) => {
+                        db.collection(options.mongo.collectionNames.profile).insertOne(user)
+                            .then((result) => {
+                                resolve(result.insertedId);
+                            })
+                    })
+                    .catch((err) => {
+                        reject(err);
+                    });
             });
         }
     };

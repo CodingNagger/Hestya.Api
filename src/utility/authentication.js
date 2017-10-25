@@ -6,5 +6,5 @@ module.exports = {
     },
     validatePayload: (payload) => {
         return new Date().getTime() - payload.lastLogin < loginValidityInMilliseconds
-    }
-}
+    },
+};

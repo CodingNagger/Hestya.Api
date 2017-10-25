@@ -2,12 +2,31 @@
 
 module.exports = (options) => {
     var express = require('express');
-    var jwt = require('jsonwebtoken');
 
     var UserModelValidator = require('../models/validator/users');
     var ProfilesService = require('../services/account/profile')(options.service);
+    var OauthService = require('../services/account/oauth')(options.service);
 
     var account = express();
+
+    account.post("/token", (req, res) => {
+        OauthService.getUserIdForRefreshToken(req.body.refreshToken)
+            .then((userId) => {
+                OauthService.deleteRefreshToken(req.body.refreshToken)
+                    .then(() => {
+                        OauthService.generateCredentials(userId)
+                            .then((credentials) => {
+                                res.json(credentials);
+                            })
+                    })
+                    .catch((err) => {
+                        res.status(500).json({ message: 'NOK++' });
+                    })
+            })
+            .catch((err) => {
+                res.status(400).json({ message: 'NOK' });
+            });
+    });
 
     account.post("/login", (req, res) => {
         if (!req.body.username || !req.body.password) {
@@ -51,14 +70,14 @@ module.exports = (options) => {
     });
 
     function login(username, password, res) {
-        console.log('profile service: '+JSON.stringify(ProfilesService));
+        console.log('profile service: ' + JSON.stringify(ProfilesService));
         ProfilesService.login(username, password)
-            .then((token) => {
+            .then((credentials) => {
                 console.log('logged in')
-                res.json({ token: token });
+                res.json(credentials);
             })
             .catch((error) => {
-                console.log('didnt login: '+error)
+                console.log('didnt login: ' + error)
                 var statusCode = !!error.code ? error.code : 500;
                 res.status(statusCode).json({ message: error.message })
             });

@@ -8,17 +8,14 @@ process.on('unhandledRejection', (reason, promise) => {
     throw reason;
 });
 
+
+
 describe('services/account/roles', () => {
     it('hasRole returns true when user has the role', () => {
         var role = 'nanny';
-        var user = { roles: { [role]: { plop: 'plopidou' } } };
+        var user = { roles: { [role]: {} } };
 
-        var RolesServices = require('../../../../src/services/account/roles')({
-            services: {
-                ProfilesService: {
-                }
-            }
-        });
+        var RolesServices = require('../../../../src/services/account/roles')({});
 
         var result = RolesServices.hasRole(user, role);
 
@@ -29,13 +26,7 @@ describe('services/account/roles', () => {
         var role = 'nanny';
         var user = { roles: { [role]: {} } };
 
-        var RolesServices = require('../../../../src/services/account/roles')({
-            services: {
-                ProfilesService: {
-                    updateUser: () => new Promise((resolve, reject) => { resolve() }),
-                }
-            }
-        });
+        var RolesServices = require('../../../../src/services/account/roles')({});
 
         RolesServices.addRole(user, role)
             .then(() => { assert.fail() })
@@ -47,28 +38,20 @@ describe('services/account/roles', () => {
         var user = { roles: {} };
 
         var RolesServices = require('../../../../src/services/account/roles')({
-            services: {
-                ProfilesService: {
-                    updateUser: () => new Promise((resolve, reject) => { resolve() }),
-                }
-            }
+            mongo: require('../../mocks/mongo'),
         });
 
         RolesServices.addRole(user, role)
             .then(() => { done() })
-            .catch(() => { assert.fail() });
+            .catch((err) => { assert.fail() });
     });
 
     it('addRole should add role even if roles global doesn\'t exist', (done) => {
         var role = 'nanny';
-        var user = { };
+        var user = {};
 
         var RolesServices = require('../../../../src/services/account/roles')({
-            services: {
-                ProfilesService: {
-                    updateUser: () => new Promise((resolve, reject) => { resolve() }),
-                }
-            }
+            mongo: require('../../mocks/mongo'),
         });
 
         RolesServices.addRole(user, role)
@@ -81,10 +64,8 @@ describe('services/account/roles', () => {
         var user = { roles: {} };
 
         var RolesServices = require('../../../../src/services/account/roles')({
-            services: {
-                ProfilesService: {
-                    updateUser: () => new Promise((resolve, reject) => { resolve() }),
-                }
+            mongo: {
+
             }
         });
 
