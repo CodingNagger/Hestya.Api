@@ -9,6 +9,10 @@ var UsersModelValidator = class UsersModelValidator {
      */
     static validateUser(user) {
         return new Promise((resolve, reject) => {
+            if (!this.validateGender(user.gender)) {
+                reject('invalid gender');
+            }
+
             if (!this.validateName(user.firstName)) {
                 reject('invalid first name');
             }
@@ -48,13 +52,18 @@ var UsersModelValidator = class UsersModelValidator {
                         encryptedPassword: hash,
                         dateOfBirth: user.dateOfBirth,
                         country: user.country,
-                        postCode: user.postCode
+                        postcode: user.postcode,
+                        gender: user.gender,
                     });
                 })
                 .catch(() => {
                     reject('password could not be encrypted');
                 });
         });
+    }
+
+    static validateGender(gender) {
+        return !gender || gender === 'm' || gender === 'f';
     }
 
     /**

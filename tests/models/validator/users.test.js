@@ -32,7 +32,8 @@ describe('models/validator/users', () => {
             dateOfBirth: '1991-02-20',
             firstName: 'Jean-Dominique',
             lastName: 'Nguele',
-            postcode: 'N1 1BA'
+            postcode: 'N1 1BA',
+            gender: 'm',
         };
 
         UserModelValidator.validateUser(user)
@@ -45,6 +46,27 @@ describe('models/validator/users', () => {
             .catch((err) => {
                 console.log(err);
                 assert(false, err);
+                done();
+            });
+    });
+
+    it('Rejects invalid gender', (done) => {
+        var user = {
+            email: 'test@hestya.io',
+            password: 'totototo',
+            country: 'GB',
+            dateOfBirth: '1991-02-20',
+            firstName: 'Jean-Dominique',
+            lastName: 'Nguele',
+            postcode: 'N1 1BA',
+            gender: 'bad',
+        };
+
+        UserModelValidator.validateUser(user)
+            .then((validUser) => {
+                assert.fail('should have failed');
+            })
+            .catch((err) => {
                 done();
             });
     });
