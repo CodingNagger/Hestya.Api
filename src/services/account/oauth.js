@@ -11,10 +11,12 @@ module.exports = (options) => {
                         db.collection(options.mongo.collectionNames.refreshToken)
                             .insertOne({ userId: userId })
                             .then((result) => {
+                                db.close();
                                 resolve(result.insertedId.str);
                             });
                     })
                     .catch((err) => {
+                        db.close();
                         reject(err);
                     });
             });
@@ -26,10 +28,12 @@ module.exports = (options) => {
                     db.collection(options.mongo.collectionNames.refreshToken)
                         .findOne({ _id: new options.mongo.ObjectID(refreshToken) })
                         .then((tokenEntry) => {
+                            db.close();
                             resolve(tokenEntry.userId);
                         });
                 })
                 .catch((err) => {
+                    db.close();
                     reject(err);
                 });
         }
@@ -40,10 +44,12 @@ module.exports = (options) => {
                     db.collection(options.mongo.collectionNames.refreshToken)
                         .deleteOne({ _id: new options.mongo.ObjectID(refreshToken) })
                         .then(() => {
+                            db.close();
                             resolve();
                         });
                 })
                 .catch((err) => {
+                    db.close();
                     reject(err);
                 });
         }

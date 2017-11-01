@@ -8,8 +8,6 @@ process.on('unhandledRejection', (reason, promise) => {
     throw reason;
 });
 
-
-
 describe('services/account/roles', () => {
     it('hasRole returns true when user has the role', () => {
         var role = 'nanny';
@@ -19,14 +17,16 @@ describe('services/account/roles', () => {
 
         var result = RolesServices.hasRole(user, role);
 
-        assert.equal(result, true, 'hasRole should return true');
+        assert(result, 'hasRole should return true');
     });
 
     it('addRole should not try to add role if role exists', (done) => {
         var role = 'nanny';
         var user = { roles: { [role]: {} } };
 
-        var RolesServices = require('../../../../src/services/account/roles')({});
+        var RolesServices = require('../../../../src/services/account/roles')({
+            mongo: require('../../mocks/mongo'),
+        });
 
         RolesServices.addRole(user, role)
             .then(() => { assert.fail() })
@@ -42,8 +42,14 @@ describe('services/account/roles', () => {
         });
 
         RolesServices.addRole(user, role)
-            .then(() => { done() })
-            .catch((err) => { assert.fail() });
+            .then((updatedUser) => {
+                console.log('updatedUser: '+JSON.stringify(updatedUser))
+                assert(!!updatedUser.roles[role], 'Role was not set');
+                done() 
+            })
+            .catch((err) => { 
+                console.log(err);
+                assert.fail() });
     });
 
     it('addRole should add role even if roles global doesn\'t exist', (done) => {

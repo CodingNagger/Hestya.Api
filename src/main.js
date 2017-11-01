@@ -37,7 +37,6 @@ var passport = require("passport");
 passport.use(strategy);
 
 passport.serializeUser(function(user, done) {
-  delete user._id;
   delete user.encryptedPassword;
 
   done(null, user);

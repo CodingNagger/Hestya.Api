@@ -6,13 +6,15 @@ module.exports = (options) => {
     var profile = express();
     
     profile.get("/", options.authenticator, (req, res) => {
+        delete req.user._id;
+        
         console.log('getting user details: ' + JSON.stringify(req.user));
         res.json(req.user);
     });
 
     profile.post("/roles", options.authenticator, (req, res) => {
         console.log('role received: ' + JSON.stringify(req.body.role));
-        RolesService.addRole(req.user, req.body.role)
+        RolesService.addRole(req.user._id, req.body.role)
             .then(() => {
                 console.log('role added');
                 res.json({});

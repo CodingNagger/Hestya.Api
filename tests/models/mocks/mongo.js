@@ -8,15 +8,16 @@ var db = {
                     },
                 };
             },
-            save: () => {
+            save: (param) => {
                 return {
                     then: (cb) => {
-                        cb();
+                        cb(param);
                     },
                 };
             }
         };
-    }
+    },
+    close: () => {},
 }
 
 module.exports = {
@@ -29,5 +30,6 @@ module.exports = {
     },
     collectionNames: {
         profile: 'profile',
-    }
+    },
+    ObjectID: class {},
 }

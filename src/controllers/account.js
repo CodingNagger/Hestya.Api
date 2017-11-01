@@ -65,6 +65,7 @@ module.exports = (options) => {
                     });
             })
             .catch((err) => {
+                console.log(err);
                 res.status(401).json({ message: "invalid request" });
             });
     });

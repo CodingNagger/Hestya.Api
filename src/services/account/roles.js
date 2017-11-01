@@ -1,44 +1,39 @@
-var UserModelValidator = require('../../models/validator/users');
+var RoleValidator = require('../../models/validator/roles');
 var authorizedRoles = ['parent', 'nanny', 'aupair', 'babysitter'];
 
 module.exports = (options) => {
-    // user service to get user
+
+    var ProfilesService = require('./profile')(options);
+
     return class RolesService {
         static hasRole(user, role) {
+            console.log('hasRole ('+role+'): '+JSON.stringify(user))
             return !!user.roles && !!user.roles[role];
         }
 
-        static addRole(user, role) {
+        static addRole(userId, role) {
             return new Promise((resolve, reject) => {
-                if (this.hasRole(user, role)) {
-                    reject('User is already a ' + role);
-                }
-                else if (authorizedRoles.includes(role)) {
-                    options.mongo.connect()
-                        .then((db) => {
-                            console.log('got the db');
-                            db.collection(options.mongo.collectionNames.profile)
-                                .findOne({ email: user.email })
-                                .then((loadedUser) => {
-                                    console.log('found user');
-                                    if (!loadedUser.roles) {
-                                        loadedUser.roles = {};
-                                    }
+                if (RoleValidator.isRoleKeyValid(role)) {
+                    ProfilesService.getUserById(userId)
+                        .then((loadedUser) => {
+                            console.log('found user');
+                            if (!loadedUser.roles) {
+                                loadedUser.roles = {};
+                            }
+                            else if (this.hasRole(loadedUser, role)) {
+                                reject('User is already a ' + role);
+                            }
 
-                                    loadedUser.roles[role] = {};
+                            loadedUser.roles[role] = {};
 
-                                    db.collection(options.mongo.collectionNames.profile).save(loadedUser)
-                                        .then((result) => {
-                                            console.log('save user')
-                                            resolve();
-                                        })
+                            ProfilesService.updateUser({ user: loadedUser }, loadedUser)
+                                .then((result) => {
+                                    console.log('save user')
+                                    resolve(result);
                                 })
-                                .catch((err) => {
-                                    db.close();
-                                    reject(err);
-                                });
                         })
                         .catch((err) => {
+                            console.log('err' + err)
                             reject(err);
                         });
                 }

@@ -1,4 +1,5 @@
 var UserModelValidator = require('../../models/validator/users');
+var RolesValidator = require('../../models/validator/roles');
 var jwt = require('jsonwebtoken');
 
 module.exports = (options) => {
@@ -12,34 +13,11 @@ module.exports = (options) => {
          * @param {object} payload 
          */
         static validateUserFromPayload(payload) {
-            console.log('validateUserFromPayload')
-            return new Promise((resolve, reject) => {
-                if (options.authUtils.validatePayload(payload)) {
-                    options.mongo.connect()
-                        .then((db) => {
-                            db.collection(options.mongo.collectionNames.profile)
-                                .findOne({ _id: new options.mongo.ObjectID(payload.id) })
-                                .then((user) => {
-                                    console.log('user found ' + user);
-                                    db.close();
-                                    resolve(user);
-                                })
-                                .catch((err) => {
-                                    console.log('cannot find user ' + err);
-                                    db.close();
-                                    reject();
-                                });
-                        })
-                        .catch((err) => {
-                            console.log('cannot connect to mongodb ' + err);
-                            reject();
-                        });
-                }
-                else {
-                    console.log('other error')
-                    reject();
-                }
-            });
+            if (options.authUtils.validatePayload(payload)) {
+                return this.getUserById(payload.id);
+            }
+            
+            return Promise.reject('Validation failed for payload: '+JSON.stringify(payload));
         }
 
         static login(username, password) {
@@ -69,7 +47,7 @@ module.exports = (options) => {
                                         console.log('password ok');
                                         OauthService.generateCredentials(user._id)
                                             .then((credentials) => resolve(credentials))
-                                            .catch((err) => {message: "failed to generate credentials"})
+                                            .catch((err) => { message: "failed to generate credentials" })
                                     })
                                     .catch((err) => {
                                         console.log(err);
@@ -95,13 +73,16 @@ module.exports = (options) => {
                     .then((db) => {
                         db.collection(options.mongo.collectionNames.profile).findOne({ email: email })
                             .then((user) => {
+                                db.close();
                                 resolve(!!user);
                             })
                             .catch((err) => {
+                                db.close();
                                 resolve(false);
                             });
                     })
                     .catch((err) => {
+                        db.close();
                         reject(err);
                     })
             });
@@ -113,12 +94,99 @@ module.exports = (options) => {
                     .then((db) => {
                         db.collection(options.mongo.collectionNames.profile).insertOne(user)
                             .then((result) => {
+                                db.close();
                                 resolve(result.insertedId);
                             })
                     })
                     .catch((err) => {
+                        db.close();
                         reject(err);
                     });
+            });
+        }
+
+        static getUserById(userId) {
+            return new Promise((resolve, reject) => {
+                options.mongo.connect()
+                    .then((db) => {
+                        db.collection(options.mongo.collectionNames.profile)
+                            .findOne({ _id: new options.mongo.ObjectID(userId) })
+                            .then((loadedUser) => {
+                                db.close();
+                                resolve(loadedUser);
+                            })
+                            .catch((err) => {
+                                db.close();
+                                reject(err);
+                            });
+                    })
+                    .catch((err) => {
+                        db.close();
+                        reject(err);
+                    });
+            });
+        }
+
+        static sanitizeUserProperties(userProperties) {
+
+            var sanitizedProperties = {};
+             
+            sanitizedProperties['roles'] = RolesValidator.validateRoles(userProperties.roles);
+
+            delete userProperties.roles;
+
+            // sanitize rest of properties with a check on whether the properties are legal
+            // define array of legal properties somewhere and use includes to check
+            for (var key in userProperties) {
+                // if legal then set property
+                sanitizedProperties[key] = userProperties[key];
+            }
+
+            return sanitizedProperties;
+        }
+
+        static updateUser(query, userProperties) {
+            return new Promise((resolve, reject) => {
+                var propertiesToUpdate = this.sanitizeUserProperties(userProperties);
+                
+                            if (Object.keys(propertiesToUpdate).length === 0) {
+                                reject('No valid properties to update');
+                                return;
+                            }
+                
+                            var update = (user) => {
+                                for (var key in propertiesToUpdate) {
+                                    user[key] = propertiesToUpdate[key];
+                                }
+                
+                                options.mongo.connect()
+                                    .then((db) => {
+                                        db.collection(options.mongo.collectionNames.profile).save(user)
+                                            .then((result) => {
+                                                db.close();
+                                                console.log('updated user')
+                                                resolve(result);
+                                            })
+                                    })
+                                    .catch((err) => {
+                                        db.close();
+                                        reject(err);
+                                    });
+                            };
+                
+                            if (!!query.user) {
+                                update(query.user);
+                            }
+                            else if (!!query.userId) {
+                                this.getUserById(query.userId)
+                                    .then((loadedUser) => {
+                                        update(loadedUser);
+                                    })
+                                    .catch((err) => {
+                                        reject('user not found');
+                                    })
+                            }
+                            else reject('invalid query');
             });
         }
     };
